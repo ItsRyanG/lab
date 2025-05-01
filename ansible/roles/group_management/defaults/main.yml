@@ -1,0 +1,6 @@
+---
+# Define groups to be managed.
+# Each group can have:
+# - name: the group name (required)
+# - gid: the group ID (optional)
+managed_groups: []

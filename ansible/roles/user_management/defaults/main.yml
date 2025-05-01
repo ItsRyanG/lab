@@ -1,0 +1,8 @@
+---
+# List of users to manage.
+# Each user can have:
+# - name: the username
+# - ssh_key: their public SSH key (optional)
+# - sudo: whether to grant sudo privileges (optional, defaults to false)
+# - groups: a comma-separated list of additional groups (optional)
+users: []

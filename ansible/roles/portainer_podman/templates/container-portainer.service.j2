@@ -1,0 +1,17 @@
+[Unit]
+Description=Portainer container managed by Podman
+Wants=network.target
+After=network-online.target
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/podman run --replace \
+  --name portainer \
+  -p 9000:9000 \
+  -v portainer_data:/data \
+  -v %t/podman/podman.sock:/var/run/docker.sock \
+  docker.io/portainer/portainer-ce
+ExecStop=/usr/bin/podman stop portainer
+
+[Install]
+WantedBy=default.target

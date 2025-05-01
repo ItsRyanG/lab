@@ -1,0 +1,35 @@
+---
+- name: Create 'poduser' with home directory
+  user:
+    name: "{{ pod_user }}"
+    shell: /bin/bash
+    create_home: true
+    state: present
+
+- name: Install Podman
+  apt:
+    name: podman
+    state: present
+    update_cache: true
+
+- name: Enable lingering for 'poduser'
+  command: loginctl enable-linger {{ pod_user }}
+  changed_when: false
+
+- name: Ensure XDG_RUNTIME_DIR export in .bashrc
+  lineinfile:
+    path: "/home/{{ pod_user }}/.bashrc"
+    line: 'export XDG_RUNTIME_DIR=/run/user/$(id -u)'
+    state: present
+    create: yes
+    owner: "{{ pod_user }}"
+    group: "{{ pod_user }}"
+
+- name: Manually launch Podman API service for rootless usage (bypasses systemd)
+  become: true
+  become_user: "{{ pod_user }}"
+  shell: |
+    XDG_RUNTIME_DIR=/run/user/$(id -u) /usr/bin/podman system service --time=0 &
+  args:
+    executable: /bin/bash
+  changed_when: false

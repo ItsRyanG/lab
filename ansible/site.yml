@@ -1,0 +1,19 @@
+---
+- name: Manage Users and Groups on All Hosts
+  hosts: all
+  become: True
+  roles:
+    - group_management
+    - user_management
+
+- name: Manage Podman Rootless User
+  hosts: podman-hosts
+  become: True
+  roles:
+    - podman_rootless
+
+- name: Manage Portainer for Podman
+  hosts: podman-hosts
+  remote_user: poduser
+  roles:
+    - portainer_podman

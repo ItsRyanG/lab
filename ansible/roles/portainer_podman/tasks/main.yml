@@ -1,0 +1,46 @@
+---
+- name: Ensure portainer_data volume exists
+  command: podman volume create portainer_data
+  register: portainer_volume_result
+  failed_when: false
+  changed_when: "'already exists' not in portainer_volume_result.stdout"
+
+- name: Ensure systemd user directory exists
+  file:
+    path: "/home/poduser/.config/systemd/user"
+    state: directory
+    owner: poduser
+    group: poduser
+    mode: '0755'
+
+- name: Create systemd unit file for persistent Portainer container
+  template:
+    src: container-portainer.service.j2
+    dest: "/home/poduser/.config/systemd/user/container-portainer.service"
+    owner: poduser
+    group: poduser
+    mode: '0644'
+
+- name: Enable lingering for poduser (if not already enabled)
+  command: loginctl enable-linger poduser
+  changed_when: false
+
+- name: Reload user systemd daemon
+  become: true
+  become_user: poduser
+  shell: systemctl --user daemon-reexec
+
+- name: Enable container-portainer service
+  become: true
+  become_user: poduser
+  shell: systemctl --user enable container-portainer.service
+
+- name: Pre-pull portainer image
+  become: true
+  become_user: poduser
+  command: podman pull docker.io/portainer/portainer-ce
+
+- name: Start container-portainer service
+  become: true
+  become_user: poduser
+  shell: systemctl --user start container-portainer.service

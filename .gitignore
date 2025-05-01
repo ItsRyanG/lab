@@ -1,0 +1,5 @@
+terraform/proxmox/
+kubernetes/
+ansible/inventory/
+ansible/ansible.cfg
+ansible/ansible.log
